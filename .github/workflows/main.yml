@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, opensuse]
+    branches: [main, opensuse, python-check-test]
   pull_request:
     branches: [main, opensuse]
 
@@ -14,12 +14,8 @@ jobs:
       matrix:
         build-type: ['normal']
         container:
-          - 'registry.fedoraproject.org/fedora:latest'
-          - 'registry.fedoraproject.org/fedora:rawhide'
           - 'registry.opensuse.org/opensuse/tumbleweed:latest'
         include:
-          - container: 'registry.fedoraproject.org/fedora:latest'
-            build-type: 'no-optional-deps'
           - container: 'registry.opensuse.org/opensuse/tumbleweed:latest'
             build-type: 'no-optional-deps'
       fail-fast: false
