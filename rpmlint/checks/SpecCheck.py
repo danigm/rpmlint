@@ -8,6 +8,10 @@ from rpmlint import pkg as Pkg
 from rpmlint.checks.AbstractCheck import AbstractCheck
 from rpmlint.helpers import ENGLISH_ENVIROMENT, readlines
 
+import tempfile
+from specfile import Specfile
+from specfile.exceptions import RPMException
+
 # Don't check for hardcoded library paths in biarch packages
 DEFAULT_BIARCH_PACKAGES = '^(gcc|glibc)'
 
@@ -170,11 +174,25 @@ class SpecCheck(AbstractCheck):
         self._spec_file = pkg.name
         self._spec_file_dir = str(Path(self._spec_file).parent)
 
-        # method call
-        self._check_non_utf8_spec_file(pkg)
-
         self.pkg = pkg
         self.spec_only = isinstance(pkg, Pkg.FakePkg)
+
+        self.spec = None
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            try:
+                self.spec = Specfile(self._spec_file, sourcedir=tmpdirname)
+            except RPMException as e:
+                # TODO: handle this exceptions
+                self.output.add_info('W', pkg, 'specfile-parsing-error', e)
+            except UnicodeDecodeError as e:
+                self.output.add_info('E', pkg, 'non-utf8-spec-file',
+                                     self._spec_name or self._spec_file)
+            except Exception as e:
+                raise
+
+        if self.spec:
+            # Run Specfile checks!
+            pass
 
         spec_lines = readlines(self._spec_file)
         # Analyse specfile line by line to check for (E)rrors or (W)arnings
@@ -209,12 +227,6 @@ class SpecCheck(AbstractCheck):
         """Check if spec file has same name as the 'Name: ' tag."""
         if wrong_spec and self._spec_file:
             self.output.add_info('E', pkg, 'invalid-spec-name')
-
-    def _check_non_utf8_spec_file(self, pkg):
-        """Check if spec file has UTF-8 character encoding."""
-        if self._spec_file and not Pkg.is_utf8(self._spec_file):
-            self.output.add_info('E', pkg, 'non-utf8-spec-file',
-                                 self._spec_name or self._spec_file)
 
     def _check_no_buildroot_tag(self, pkg, buildroot):
         """Check if BuildRoot tag is used in the specfile."""
