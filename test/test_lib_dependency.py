@@ -14,9 +14,18 @@ def libdependencycheck():
 
 
 @pytest.mark.parametrize('package', [get_tested_mock_package(
-files={
-'/usr/lib/libfoo.so': {'linkto': 'libfoo.so.1'},
-}
+    name='shlib2-devel',
+    files={
+        '/usr/lib/libfoo.so': {'linkto': 'libfoo.so.1'},
+    },
+    header={
+        'requires': [
+            'rpmlib(CompressedFileNames) <= 3.0.4-1',
+            'rpmlib(FileDigests) <= 4.6.0-1',
+            'rpmlib(PayloadFilesHavePrefix) <= 4.0-1',
+            'rpmlib(PayloadIsXz) <= 5.2-1',
+        ],
+    },
 )])
 def test_shlib2_devel(package, libdependencycheck):
     output, test = libdependencycheck
@@ -125,6 +134,8 @@ files={
 }
 )])
 def test_missing_depency_on(package, libdependencycheck):
+    # TODO: Review this tests, maybe should be moved to test_tag because the
+    # error 'W: missing-dependency-on' is only produced in TagsCheck.py
     output, test = libdependencycheck
     test.check(package)
     test.after_checks()
