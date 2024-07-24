@@ -15,13 +15,20 @@ def mixedownershipcheck():
 
 @pytest.mark.parametrize('package', [get_tested_mock_package(
 files={
-'/usr/bin/noproblem': {},
-'/var/lib/badfolder': {'user': 'nobody'},
-'/var/lib/badfolder/broken1': {'user': 'root'},
-'/var/lib/badfolder/correctperms': {'user': 'root'},
-'/var/lib/badfolder/correctperms/broken2': {}
-}
-)])
+    '/usr/bin/noproblem': {},
+    '/var/lib/badfolder': {
+        'metadata': {'user': 'nobody'},
+        'is_dir': True,
+    },
+    '/var/lib/badfolder/broken1': {
+        'metadata': {'user': 'root'},
+    },
+    '/var/lib/badfolder/correctperms': {
+        'metadata': {'user': 'root'},
+        'is_dir': True,
+    },
+    '/var/lib/badfolder/correctperms/broken2': {},
+})])
 def test_mixed_ownership(package, mixedownershipcheck):
     output, test = mixedownershipcheck
     test.check(package)
