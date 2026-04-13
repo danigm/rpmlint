@@ -16,11 +16,11 @@ jobs:
         container:
           - 'registry.fedoraproject.org/fedora:latest'
           - 'registry.fedoraproject.org/fedora:rawhide'
-          - 'registry.opensuse.org/opensuse/tumbleweed:latest'
+          - 'registry.opensuse.org/opensuse/leap:latest'
         include:
           - container: 'registry.fedoraproject.org/fedora:latest'
             build-type: 'no-optional-deps'
-          - container: 'registry.opensuse.org/opensuse/tumbleweed:latest'
+          - container: 'registry.opensuse.org/opensuse/leap:latest'
             build-type: 'no-optional-deps'
       fail-fast: false
 
